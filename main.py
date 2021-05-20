@@ -30,9 +30,20 @@ template_string = """
     (slot G3 (type STRING)) 
     (slot G4 (type STRING)) 
     (slot G5 (type STRING)) 
-    (slot G6 (type STRING)) 
-    (slot G7 (type STRING)) 
-    (slot G8 (type STRING))     
+    (slot G6 (type STRING))
+)
+"""
+
+apply_rule_string = """
+(defrule apply_rule
+    (?g ?nonterminal ?first ?next)
+    ?a <- (text ?nonterminal ?first $?rest)
+    ?b <- (answer $?steps)
+    =>
+    (assert (text ?next $?rest))
+    (assert (answer $?steps ?g))
+    (retract ?a)
+    (retract ?b)
 )
 """
 
@@ -49,12 +60,10 @@ fact.update({
     "sentence" : sentence_post_tagging,
     "G1" : "S NN A",
     "G2" : "A NN B",
-    "G3" : "B , C",
-    "G4" : "C NNP D",
-    "G5" : "D VBD E",
-    "G6" : "E RB F",
-    "G7" : "F JJ G",
-    "G8" : "G ."
+    "G3" : "B NNP C",
+    "G4" : "C VBD D",
+    "G5" : "D RB E",
+    "G6" : "E JJ F"
 })
 fact.assertit()
  
