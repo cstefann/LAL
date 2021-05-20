@@ -25,14 +25,14 @@ for i in tagged:
 template_string = """
 (deftemplate input
     (slot sentence (type STRING))
-    (slot ruleG1 (type STRING))
-    (slot ruleG2 (type STRING)) 
-    (slot ruleG3 (type STRING)) 
-    (slot ruleG4 (type STRING)) 
-    (slot ruleG5 (type STRING)) 
-    (slot ruleG6 (type STRING)) 
-    (slot ruleG7 (type STRING)) 
-    (slot ruleG8 (type STRING))     
+    (slot G1 (type STRING))
+    (slot G2 (type STRING)) 
+    (slot G3 (type STRING)) 
+    (slot G4 (type STRING)) 
+    (slot G5 (type STRING)) 
+    (slot G6 (type STRING)) 
+    (slot G7 (type STRING)) 
+    (slot G8 (type STRING))     
 )
 """
 
@@ -47,14 +47,14 @@ template = env.find_template('input')
 fact = template.new_fact()
 fact.update({
     "sentence" : sentence_post_tagging,
-    "ruleG1" : "S NN A",
-    "ruleG2" : "A NN B",
-    "ruleG3" : "B , C",
-    "ruleG4" : "C NNP D",
-    "ruleG5" : "D VBD E",
-    "ruleG6" : "E RB F",
-    "ruleG7" : "F JJ G",
-    "ruleG8" : "G ."
+    "G1" : "S NN A",
+    "G2" : "A NN B",
+    "G3" : "B , C",
+    "G4" : "C NNP D",
+    "G5" : "D VBD E",
+    "G6" : "E RB F",
+    "G7" : "F JJ G",
+    "G8" : "G ."
 })
 fact.assertit()
  
