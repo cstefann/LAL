@@ -1,104 +1,86 @@
 import nltk
 import clips
 import inspect
+from tkinter import *
 
 # nltk.download('punkt')
 # nltk.download('averaged_perceptron_tagger')
 
-'''POS Tagging'''
+# input -> Today morning, Arthur felt very good
 
-sentence_post_tagging = ""
-sentence = """Today morning, Arthur felt very good."""
-tokens = nltk.word_tokenize(sentence)
-tagged = nltk.pos_tag(tokens)
+def pos_tagg(sentence):
+    sentence_post_tagged = ""
+    tokens = nltk.word_tokenize(sentence)
+    tagged = nltk.pos_tag(tokens)
 
-for i in tagged:
-    if (i[1] == "."):
-        sentence_post_tagging = sentence_post_tagging + i[1]
-    else:
-        sentence_post_tagging = sentence_post_tagging + i[1] + " "
+    for i in tagged:
+        if (i[1] == "."):
+            sentence_post_tagged = sentence_post_tagged + i[1]
+        else:
+            sentence_post_tagged = sentence_post_tagged + i[1] + " "
+    return sentence_post_tagged
 
-''' ------------------------------------------------------- '''
+def parse_input(sentence):
+    sentence_post_tagged = pos_tagg(sentence)
+    env = clips.Environment()
+    env.clear()
+    env.load('LAL.clp')
+    env.reset()
 
-''' Clips Part'''
+    ''' Facts - Base parsing rules '''
 
-template_string = """
-(deftemplate input
-    (slot sentence (type STRING))
-    (slot answer (type STRING))
-    (slot G1 (type STRING))
-    (slot G2 (type STRING)) 
-    (slot G3 (type STRING)) 
-    (slot G4 (type STRING)) 
-    (slot G5 (type STRING)) 
-    (slot G6 (type STRING))
-)
-"""
-read_input_rule_string = """
-(defrule read_input
-    ?a <- (sentence)
-    =>
-    (assert (text S (explode$ (sentence))))
-    (retract ?a)
-)
-"""
+    fact = env.assert_string('(text S ' + sentence_post_tagged + ')')
+    fact = env.assert_string('(answer)')
+    fact = env.assert_string('(rule G1  S NN A)')
+    fact = env.assert_string('(rule G2  A NN B)')
+    fact = env.assert_string('(rule G3  B , C)')
+    fact = env.assert_string('(rule G4  C NNP D)')
+    fact = env.assert_string('(rule G5  D VBD E)')
+    fact = env.assert_string('(rule G6  E RB F)')
+    fact = env.assert_string('(rule G7  F JJ H)')
+    fact = env.assert_string('(rule G8  H . EPS)')
 
-apply_rule_string = """
-(defrule apply_rule
-    (?g ?nonterminal ?first ?next)
-    ?a <- (text ?nonterminal ?first $?rest)
-    ?b <- (answer $?steps)
-    =>
-    (assert (text ?next $?rest))
-    (assert (answer $?steps ?g))
-    (retract ?a)
-    (retract ?b)
-)
-"""
+    print("Input received: " + sentence)
+    print("POS Tagged version: " + sentence_post_tagged)
+    print("Result from CLIPS code: ")
 
-succes_rule_string = """
-(defrule success
-    ?a <- (text EPS)
-    (answer $?steps)
-    =>
-    (printout t "YES" $?steps crlf)
-    (retract ?a)
-)
-"""
+    env.run()
 
-fail_rule_string = """
-(defrule failure
-    ?a <- (text $?)
-    =>
-    (printout t "NO" crlf)
-    (retract ?a)
-)
-"""
+''' GUI '''
 
-''' -------------- '''
+root = Tk()
+root.geometry("500x500")
 
-env = clips.Environment()
- 
-env.build(template_string)
-env.build(read_input_rule_string)
- 
-template = env.find_template('input')
- 
-fact = template.new_fact()
-fact.update({
-    "sentence" : sentence_post_tagging,
-    "answer" : "",
-    "G1" : "S NN A",
-    "G2" : "A NN B",
-    "G3" : "B NNP C",
-    "G4" : "C VBD D",
-    "G5" : "D RB E",
-    "G6" : "E JJ F"
-})
-fact.assertit()
- 
-for fact in env.facts():
-    print(fact)
+Label(root, text="Learn a Language", fg="black", font=('times', 20, 'normal')).pack()
+Label(root, text="", fg="red").pack()
 
-for rule in env.rules():
-    print(rule)
+def click1():
+    input_data = entry.get()
+    parse_input(input_data)
+
+# Apeleaza aceleasi functii ca si click1 (verifica daca inputul poate fi parsat pe baza regulilor date manual)
+
+def click2():
+    input_data = entry.get()
+    parse_input(input_data)
+
+topframe = Frame(root)
+topframe.winfo_toplevel().title("LAL")
+entry = Entry(topframe, width=50)
+entry.pack()
+
+Label(topframe, text="", fg="red").pack()
+
+button1 = Button(topframe, text="Learn a grammer", bg='black', fg='white', command=click1)
+button1.pack(side=LEFT)
+button2 = Button(topframe, text="Parse an input", bg='black', fg='white', command=click2)
+button2.pack(side=RIGHT)
+
+topframe.pack(side=TOP)
+
+bottomframe = Frame(root)
+
+my_finishURL = Label(bottomframe, text="")
+my_finishURL.pack(pady=20)
+bottomframe.pack()
+root.mainloop()
